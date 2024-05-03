@@ -34,4 +34,5 @@ dependencies {
     implementation("io.ktor:ktor-server-config-yaml:2.3.10")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+
 }
