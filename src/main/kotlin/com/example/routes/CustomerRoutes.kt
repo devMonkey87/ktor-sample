@@ -2,11 +2,15 @@ package com.example.routes
 
 import com.example.models.Customer
 import com.example.models.customerStorage
+import com.mongodb.ConnectionString
+import com.mongodb.MongoClientSettings
+import com.mongodb.kotlin.client.MongoClient
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.bson.Document
 
 fun Route.customerRouting() {
     route("/customer") {
@@ -33,7 +37,20 @@ fun Route.customerRouting() {
         }
         post {
             val customer = call.receive<Customer>()
-            customerStorage.add(customer)
+
+            val uri = "mongodb://localhost:27017/"
+            val settings = MongoClientSettings.builder()
+                .applyConnectionString(ConnectionString(uri))
+                .retryWrites(true)
+                .build()
+// Create a new client and connect to the server
+            val mongoClient = MongoClient.create(settings)
+            val database = mongoClient.getDatabase("ktordb")
+
+            val collection = database.getCollection<Customer>("customers")
+
+            collection.insertOne(customer)
+
             call.respondText("Customer stored correctly", status = HttpStatusCode.Created)
         }
         delete("{id?}") {
